@@ -1,0 +1,174 @@
+MVM:
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity prac_mvm is
+    Port ( Sin : in  STD_LOGIC;
+           Pin : in  STD_LOGIC_VECTOR (3 downto 0);
+           Mode : in  STD_LOGIC_VECTOR (1 downto 0);
+           clk : in  STD_LOGIC;
+           rst : in  STD_LOGIC;
+           Sout : out  STD_LOGIC;
+           Pout : out  STD_LOGIC_VECTOR (3 downto 0));
+end prac_mvm;
+
+architecture Behavioral of prac_mvm is
+SIGNAL temp: STD_LOGIC_VECTOR (3 downto 0):=(OTHERS=>'0');
+begin
+process (rst,clk,Mode,Sin,Pin)
+begin
+	IF rst='1' Then
+		Pout<="0000";
+		Sout<='0';
+	Elsif falling_edge(clk) then
+		case Mode is 
+			when "00" =>
+				temp(3 downto 1)<=temp(2 downto 0);
+				temp(0)<=Sin;
+				Sout<=temp(3);
+				Pout<="0000";
+				
+			when "01" =>
+				temp(3 downto 1)<=temp(2 downto 0);
+				temp(0)<=Sin;
+				Pout<=temp;
+				Sout<='0';
+			
+			when "10" =>
+				temp<=Pin;
+				Sout<=temp(3);
+				temp(3 downto 1)<=temp(2 downto 0);
+				Pout<=(OTHERS => '0');
+			
+			when others =>
+				temp<=Pin;
+				Pout<=temp;
+				Sout<='0';
+		end case;
+	end if;
+end process;
+end Behavioral;
+
+
+
+TVM:
+
+library ieee;
+USE ieee.std_logic_1164.ALL;
+  
+ENTITY prac_tvm IS
+END prac_tvm;
+ 
+ARCHITECTURE behavior OF prac_tvm IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT prac_mvm
+    PORT(
+         Sin : IN  std_logic;
+         Pin : IN  std_logic_vector(3 downto 0);
+         Mode : IN  std_logic_vector(1 downto 0);
+         clk : IN  std_logic;
+         rst : IN  std_logic;
+         Sout : OUT  std_logic;
+         Pout : OUT  std_logic_vector(3 downto 0)
+        );
+    END COMPONENT;
+    
+
+   --Inputs
+   signal Sin : std_logic := '0';
+   signal Pin : std_logic_vector(3 downto 0) := ("1101");
+   signal Mode : std_logic_vector(1 downto 0) := (others => '0');
+   signal clk : std_logic := '0';
+   signal rst : std_logic := '0';
+
+ 	--Outputs
+   signal Sout : std_logic;
+   signal Pout : std_logic_vector(3 downto 0);
+
+   -- Clock period definitions
+   constant clk_period : time := 10 ns;
+ 
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: prac_mvm PORT MAP (
+          Sin => Sin,
+          Pin => Pin,
+          Mode => Mode,
+          clk => clk,
+          rst => rst,
+          Sout => Sout,
+          Pout => Pout
+        );
+
+   -- Clock process definitions
+   clk_process :process
+   begin
+		clk <= '0';
+		wait for clk_period/2;
+		clk <= '1';
+		wait for clk_period/2;
+   end process;
+ 
+
+   -- Stimulus process
+   stim_proc: process
+   begin		
+		Mode<= "00";
+		wait for 80 ns;
+		Mode<= "01";
+		wait for  50 ns;
+		Mode<= "10";
+		wait for  50 ns;
+		Mode<= "11";
+		wait for 20 ns;
+   end process;
+	
+	prco_sin:process
+	begin
+		wait for 10 ns;
+		Sin<='1';
+		wait for 10 ns;
+		
+		Sin<='0';
+		wait for 10 ns;
+		
+		Sin<='1';
+		wait for 10 ns;
+		
+		Sin<='0';
+		wait for 10 ns;
+		
+		Sin<='0';
+		wait for 40 ns;
+		
+		Sin<='1';
+		wait for 10 ns;
+		
+		Sin<='0';
+		wait for 10 ns;
+		
+		Sin<='1';
+		wait for 10 ns;
+		
+		Sin<='0';
+		wait for 10 ns;
+		
+		Sin<='0';
+		wait  ;
+	end process;
+	
+	rst_proc: process
+	begin
+	rst<='0';
+	wait for 300 ns;
+	rst<='1';
+	wait for 10 ns;
+	end process;
+
+END;
+
